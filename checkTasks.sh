@@ -3,12 +3,19 @@
 WORKING_DIRECTORY='/tmp/task'
 REPO_NAME='testTaskRepo'
 TEST_REPO_NAME='ConsoleCheckerTests'
+TIMEOUT=1
 
-while getopts 'n:' FLAG; do
+while getopts 'n:t:' FLAG; do
 	case "${FLAG}" in
 		n) FILE_NAME=$OPTARG ;;
+		t) TIMEOUT=$OPTARG ;;
 	esac
 done
+
+if [[ -z $FILE_NAME ]]; then
+	echo "Task name not given!"
+	exit 1
+fi
 
 rm -rf $WORKING_DIRECTORY
 mkdir $WORKING_DIRECTORY
@@ -33,9 +40,8 @@ git clone git@github.com:Wojciech-Baranowski/$TEST_REPO_NAME.git
 cd $TEST_REPO_NAME/$FILE_NAME
 cp -r * $WORKING_DIRECTORY/tests
 
-echo "Testing!"
+echo "Testing (${FILE_NAME}):"
 cd $WORKING_DIRECTORY
-rm -rf out
 mkdir out
 CONTESTANTS=$(ls $WORKING_DIRECTORY/programs/)
 TESTS=$(ls $WORKING_DIRECTORY/tests/)
@@ -44,22 +50,31 @@ for CONTESTANT in ${CONTESTANTS[@]}; do
 	echo "    $CONTESTANT:"
 	mkdir out/$CONTESTANT
 	for TEST in ${TESTS[@]}; do
+		mkdir out/$CONTESTANT/$TEST
 		TEST_CASES=$(ls tests/${TEST}/in/)
 		for TEST_CASE in ${TEST_CASES[@]}; do
 			TEST_CASE=${TEST_CASE%%.*}
-			./programs/$CONTESTANT < tests/${TEST}/in/$TEST_CASE.in > out/$CONTESTANT/$TEST_CASE.out
-			DIFF=$(diff -wB tests/${TEST}/out/$TEST_CASE.out out/$CONTESTANT/$TEST_CASE.out)
+			WRONG_CASE=""
+			TLE_CASE=""
+			timeout $TIMEOUT ./programs/$CONTESTANT < tests/${TEST}/in/$TEST_CASE.in > out/$CONTESTANT/$TEST/$TEST_CASE.out
+			STATUS=$?
+			if [[ $STATUS -eq 124 ]]; then
+				TLE_CASE=$TEST_CASE
+				break
+			fi
+			DIFF=$(diff -wB tests/${TEST}/out/$TEST_CASE.out out/$CONTESTANT/$TEST/$TEST_CASE.out)
 			if [[ -n $DIFF ]]; then
 				WRONG_CASE=$TEST_CASE
 				break
 			fi
 		done
-		if [[ -z $WRONG_CASE ]]; then
-			echo "        Test $TEST: OK!"
-		else
+		if [[ -n $WRONG_CASE ]]; then
 			echo "        Test $TEST: WRONG! (test case $TEST_CASE)"
+		elif [[ -n $TLE_CASE ]]; then
+			echo "        Test $TEST: TLE! (test case $TEST_CASE)"
+		else
+			echo "        Test $TEST: OK!"
 		fi
 	done
 done
-
 
