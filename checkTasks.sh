@@ -48,7 +48,7 @@ for CONTESTANT in ${CONTESTANTS[@]}; do
 		for TEST_CASE in ${TEST_CASES[@]}; do
 			TEST_CASE=${TEST_CASE%%.*}
 			./programs/$CONTESTANT < tests/${TEST}/in/$TEST_CASE.in > out/$CONTESTANT/$TEST_CASE.out
-			DIFF=$(diff -wB tests/${TEST}/in/$TEST_CASE.in out/$CONTESTANT/$TEST_CASE.out)
+			DIFF=$(diff -wB tests/${TEST}/out/$TEST_CASE.out out/$CONTESTANT/$TEST_CASE.out)
 			if [[ -n $DIFF ]]; then
 				WRONG_CASE=$TEST_CASE
 				break
