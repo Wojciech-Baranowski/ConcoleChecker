@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WORKING_DIRECTORY='/tmp/task'
-REPO_NAME='testTaskRepo'
+REPO_NAME='InformatykaOlimpijska'
 TEST_REPO_NAME='ConsoleCheckerTests'
 TIMEOUT=1
 
