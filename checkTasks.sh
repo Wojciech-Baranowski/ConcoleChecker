@@ -26,13 +26,14 @@ mkdir tests
 cd $WORKING_DIRECTORY
 git clone git@github.com:Wojciech-Baranowski/$REPO_NAME.git
 cd $REPO_NAME
-BRANCHES=$(git branch --list -a | grep '^\s*remotes/origin/.*[^HEAD|main]$')
+echo $(git branch --list -a | grep '^\s*remotes/origin/[^HEAD|main]')
+BRANCHES=$(git branch --list -a | grep '^\s*remotes/origin/[^HEAD|main]')
 
-for BRANCH in ${BRANCHES[@]}; do 
+for BRANCH in ${BRANCHES[@]}; do
 	git checkout $BRANCH
 	CPP=$(ls | grep $FILE_NAME.cpp | head -1)
 	BRANCH_OWNER=${BRANCH##*/}
-	gcc $CPP -o $WORKING_DIRECTORY/programs/$BRANCH_OWNER
+	g++ $CPP -o $WORKING_DIRECTORY/programs/$BRANCH_OWNER
 done
 
 cd $WORKING_DIRECTORY
