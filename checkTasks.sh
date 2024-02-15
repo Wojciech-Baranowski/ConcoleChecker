@@ -26,8 +26,8 @@ mkdir tests
 cd $WORKING_DIRECTORY
 git clone git@github.com:Wojciech-Baranowski/$REPO_NAME.git
 cd $REPO_NAME
-echo $(git branch --list -a | grep '^\s*remotes/origin/[^HEAD|main]')
-BRANCHES=$(git branch --list -a | grep '^\s*remotes/origin/[^HEAD|main]')
+echo $(git branch --list -a | grep '^\s*remotes/origin/' | grep -v main | grep -v HEAD)
+BRANCHES=$(git branch --list -a | grep '^\s*remotes/origin/' | grep -v main | grep -v HEAD)
 
 for BRANCH in ${BRANCHES[@]}; do
 	git checkout $BRANCH
